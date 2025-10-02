@@ -1,5 +1,4 @@
 
-=======
 # SailScreen
 
 ![SailScreen Panel](panel.png)
@@ -49,24 +48,3 @@ A touchscreen marine dashboard for ESP32-S3 featuring GPS speed, compass, chart,
 
 ---
 
-## Project Structure
-
-```plaintext
-display/
-│
-├── [main.py](VALID_FILE)                # Main application logic
-├── [lv_config.py](VALID_FILE)           # Display/touch config and initialization
-├── [display.py](VALID_FILE)             # High-level display logic (UI, navigation, forms)
-├── [microGPS.py](VALID_FILE)            # GPS NMEA parser
-├── mmq.py                 # ESPNow communication logic and peer management
-├── [config.py](VALID_FILE)              # All pin/device config in one place
-│
-├── [axs15231b.py](VALID_FILE)           # Display driver
-├── [axs15231.py](VALID_FILE)            # Touch driver
-├── [nv3041aG.py](VALID_FILE)            # (Other display driver)
-├── [_axs15231b_init.py](VALID_FILE)     # Display init sequence
-│
-├── [test.py](VALID_FILE)                # LVGL test/demo code
-├── [prd.md](VALID_FILE)                 # Product Requirements Document
-├── [panel.png](VALID_FILE)              # Screenshot or photo of the UI
-└── ...
