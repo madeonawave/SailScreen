@@ -11,10 +11,12 @@ time.sleep(2)  # Give time for USB/REPL to settle
 
 # Initialize GPS parser and UART
 gps = MicropyGPS()
-uart = machine.UART(config.GPS_UART_ID,
-                    baudrate=config.GPS_BAUDRATE,
-                    tx=config.GPS_TX_PIN,
-                    rx=config.GPS_RX_PIN)
+uart = machine.UART(
+    config.GPS_UART_ID,
+    baudrate=config.GPS_BAUDRATE,
+    tx=config.GPS_TX_PIN,
+    rx=config.GPS_RX_PIN,
+)
 
 ui = DisplayUI()
 messenger = ESPNowMessenger()
@@ -22,10 +24,12 @@ messenger = ESPNowMessenger()
 # Load peers from file and add to messenger
 import re
 
+
 def is_valid_mac(mac):
     # MAC address should be 6 pairs of hex digits separated by ':'
     # Example: AA:BB:CC:DD:EE:FF
     return bool(re.match(r"^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$", mac))
+
 
 def load_peers():
     try:
@@ -35,6 +39,7 @@ def load_peers():
     except OSError:
         return []
 
+
 for mac_str in load_peers():
     try:
         peer_mac = ESPNowMessenger.mac_str_to_bytes(mac_str)
@@ -43,6 +48,7 @@ for mac_str in load_peers():
         print("Invalid MAC:", mac_str, e)
 
 last_update = 0
+last_valid_speed = 0.0
 
 try:
     while True:
@@ -52,50 +58,54 @@ try:
             if b:
                 gps.update(chr(b[0]))
 
-        # 2. Always update the display with the latest GPS data
-        try:
-            # Speed in knots (float, 0th element of gps.speed)
-            speed_knots = gps.speed[0]
+        # 2. Update display with GPS data (only when valid, otherwise keep previous)
+        if gps.valid:
+            last_valid_speed = gps.speed[0]
+            speed_knots = last_valid_speed
             course_val = float(gps.course)
             compass = "{:.0f}°".format(course_val)
-            # Update display
             ui.set_display_text("{:.1f}".format(speed_knots))
             ui.set_compass_text(str(compass))
-            # Add speed to chart
             ui.update_chart(int(speed_knots * 10))
-            # If on GPS screen, update lat/lon and Sat/Fix
             lv.task_handler()
             if ui.active_screen == 1:
                 try:
-                    lat = gps.latitude[0] + gps.latitude[1]/60 if gps.latitude else None
-                    if gps.latitude[2] == 'S':
+                    lat = (
+                        gps.latitude[0] + gps.latitude[1] / 60 if gps.latitude else None
+                    )
+                    if gps.latitude[2] == "S":
                         lat = -lat
-                    lon = gps.longitude[0] + gps.longitude[1]/60 if gps.longitude else None
-                    if gps.longitude[2] == 'W':
+                    lon = (
+                        gps.longitude[0] + gps.longitude[1] / 60
+                        if gps.longitude
+                        else None
+                    )
+                    if gps.longitude[2] == "W":
                         lon = -lon
                     ui.show_gps_screen(
-                        lat, lon,
+                        lat,
+                        lon,
                         satellites_in_use=getattr(gps, "satellites_in_use", None),
-                        fix_stat=getattr(gps, "fix_stat", None)
+                        fix_stat=getattr(gps, "fix_stat", None),
                     )
                 except Exception:
                     ui.show_gps_screen(None, None, None, None)
-
-
-        except ValueError:
-            # Optionally show waiting message
-            ui.set_display_text("...")
-            ui.set_compass_text("...")
+        else:
+            ui.set_display_text("{:.1f}".format(last_valid_speed))
 
         # 3. Send speed and compass to all peers every
         now = time.ticks_ms()
         try:
             for mac_str in load_peers():
                 peer_mac = ESPNowMessenger.mac_str_to_bytes(mac_str)
-                messenger.send_to(peer_mac, "speedometer/speed", "{:.1f}".format(gps.speed[0]))
-                messenger.send_to(peer_mac, "speedometer/compass", str(gps.compass_direction()))
+                messenger.send_to(
+                    peer_mac, "speedometer/speed", "{:.1f}".format(gps.speed[0])
+                )
+                messenger.send_to(
+                    peer_mac, "speedometer/compass", str(gps.compass_direction())
+                )
         except OSError as e:
-            if getattr(e, 'errno', None) == 116:
+            if getattr(e, "errno", None) == 116:
                 print("ESP-NOW send timeout (ETIMEDOUT)")
             else:
                 print("ESP-NOW send error:", e)
