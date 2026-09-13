@@ -30,15 +30,13 @@ class DisplayUI:
         next_label = lv.label(self.next_btn)
         next_label.set_text(lv.SYMBOL.RIGHT)
 
+        self.large_font = lv.binfont_create("S:/montserrat_96.bin")
         self.d_label = lv.label(self.scrn)
         self.d_label.set_text("--")
         self.d_label.set_style_text_color(lv.color_hex(0xFFFFFF), 0)
-        self.d_label.set_style_text_font(lv.font_montserrat_48, 0)
+        self.d_label.set_style_text_font(self.large_font, 0)
         self.d_label.set_style_text_align(lv.TEXT_ALIGN.CENTER, 0)
-        self.d_label.set_style_transform_width(120, 0)
-        self.d_label.set_style_transform_height(48, 0)
-        self.d_label.set_style_transform_scale(600, 0)
-        self.d_label.align(lv.ALIGN.CENTER, -60, -180)  # Move a bit left of center
+        self.d_label.align(lv.ALIGN.CENTER, 0, -180)
 
         self.compass_label = lv.label(self.scrn)
         self.compass_label.set_text("--")
