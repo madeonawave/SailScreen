@@ -1,4 +1,5 @@
 import config
+
 """
 LVGL Configuration for JC3248W535EN Display
 ===========================================
@@ -30,12 +31,18 @@ except NameError:
 
     # Initialize QSPI bus for display
     import time
+
     time.sleep(2)
 
     spi_bus = machine.SPI.Bus(
         host=1,  # SPI2_HOST
         sck=config.SCLK_PIN,
-        quad_pins=(config.DATA0_PIN, config.DATA1_PIN, config.DATA2_PIN, config.DATA3_PIN)
+        quad_pins=(
+            config.DATA0_PIN,
+            config.DATA1_PIN,
+            config.DATA2_PIN,
+            config.DATA3_PIN,
+        ),
     )
 
     # Create display bus interface
@@ -44,8 +51,8 @@ except NameError:
         dc=config.DC_PIN,
         cs=config.CS_PIN,
         freq=config.FREQ,
-        spi_mode=3,      # SPI mode 3 (CPOL=1, CPHA=1)
-        quad=True        # Enable QSPI mode (4-wire)
+        spi_mode=3,  # SPI mode 3 (CPOL=1, CPHA=1)
+        quad=True,  # Enable QSPI mode (4-wire)
     )
 
     # Allocate frame buffers in SPIRAM for better performance
@@ -69,8 +76,8 @@ display = axs15231b.AXS15231B(
     frame_buffer2=fb2,
     backlight_pin=config.BACKLIGHT_PIN,
     color_space=lv.COLOR_FORMAT.RGB565,
-    rgb565_byte_swap=True,           # Required for this display
-    backlight_on_state=axs15231b.STATE_PWM
+    rgb565_byte_swap=True,  # Required for this display
+    backlight_on_state=axs15231b.STATE_PWM,
 )
 
 # Initialize display
@@ -84,8 +91,10 @@ print("Display initialized successfully!")
 # Touch Controller Setup
 # =============================================================================
 
+
 class TouchCal:
     """Touch calibration data placeholder"""
+
     def __init__(self):
         # Calibration parameters (not needed for this touch controller)
         self.alphaX = None
@@ -101,6 +110,7 @@ class TouchCal:
     def save():
         """Save calibration data (placeholder)"""
         pass
+
 
 # Initialize I2C bus for touch controller
 import axs15231
